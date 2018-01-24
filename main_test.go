@@ -1,11 +1,11 @@
 package main
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
-func TestMain(m *testing.M){
+func TestMain(m *testing.M) {
 	//For setup and tearDown approch use something like below
 	fmt.Println("Do all setup")
 	m.Run()
@@ -33,33 +33,58 @@ func TestReverse(t *testing.T) {
 	}
 }
 
-//Table driven test
-type testInputs struct{
-	input string
-	output string
+func ExampleReverse() {
+	fmt.Println(reverse("help"))
+	//Output: pleh
 }
 
-var testsa = []testInputs{ testInputs{"Hello", "olleH"} } 
-
-func TestReverseForMultipleInput(t *testing.T){
+func TestReverseForMultipleInput(t *testing.T) {
 	if testing.Short() {
 		t.Skip("TestReverseForMultipleInput skipped")
 	}
-	 tests := []struct{
-		input string
+	tests := []struct {
+		input  string
 		output string
 	}{
 		{"Hello", "olleH"},
 		{"benchmarks", "skramhcneb"},
-		{"provide","edivorp"},
-		{"flag","galf"},
+		{"provide", "edivorp"},
+		{"flag", "galf"},
 	}
-	for _,test := range tests {
+	for _, test := range tests {
 		if reverse(test.input) != test.output {
 			t.Fatal("TestReverseForMultipleInput failed")
 		}
 	}
 }
+
+// go test -run=TestReverseForMultipleInputWithSubTest
+// or to run a single test
+// go test -run=TestReverseForMultipleInputWithSubTest/input_hello -v
+func TestReverseForMultipleInputWithSubTest(t *testing.T) {
+	if testing.Short() {
+		t.Skip("TestReverseForMultipleInputWithSubTest skipped")
+	}
+	tests := []struct {
+		name   string
+		input  string
+		output string
+	}{
+		{"input hello", "Hello", "olleH"},
+		{"input benchmarks", "benchmarks", "skramhcneb"},
+		{"input provide", "provide", "edivorp"},
+		{"input flag", "flag", "galf"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if reverse(test.input) != test.output {
+				t.Fatal("TestReverseForMultipleInputWithSubTest failed")
+			}
+		})
+	}
+}
+
 func TestProcessForHello(t *testing.T) {
 	words := []string{"Hello"}
 	reversedWords := process(words)
@@ -107,7 +132,7 @@ func BenchmarkProcess(b *testing.B) {
 }
 
 func BenchmarkNonsense(b *testing.B) {
-	if testing.Verbose(){
+	if testing.Verbose() {
 		b.Skip("BenchmarkNonsense skipped")
 	}
 	b.ReportAllocs()
@@ -116,22 +141,22 @@ func BenchmarkNonsense(b *testing.B) {
 	}
 }
 
-func BenchmarkReduce(b *testing.B){
+func BenchmarkReduce(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()
-		words := []string{"olleH", "skramhcneb" }
+		words := []string{"olleH", "skramhcneb"}
 		b.StopTimer()
 		reduce(words)
 	}
 
-//Contention benchmark
-/*
-	words := []string{"olleH", "skramhcneb" }
-	b.SetParallelism(30)
-	b.RunParallel(func (pb *testing.PB){
-		for pb.Next(){
-			reduce(words)
-		}
-	})
-*/	
+	//Contention benchmark
+	/*
+		words := []string{"olleH", "skramhcneb" }
+		b.SetParallelism(30)
+		b.RunParallel(func (pb *testing.PB){
+			for pb.Next(){
+				reduce(words)
+			}
+		})
+	*/
 }
